@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <title>Gabriel Deel's tech challenge</title>
+    <style>
+      body {
+        background: linear-gradient(to right, orange, skyblue);
+      }
+      .button {
+        background-color: #008cba;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 18px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body class="hero">
+    <div class="hello-world">
+      <h1>Hello Deel!</h1>
+      <div class="separator"></div>
+      <p>This is &lt;<em>Gabriel Idachaba</em>&gt; Tech Assignment</p>
+    </div>
+    <div class="content">
+      <h1 class="hero__title">Your IP is: {{ ip }}</h1>
+      <h1 class="hero__title">Your reversed IP is: {{ reversed_ip }}</h1>
+      <a href="/all" class="button">View all reversed IPs</a>
+      <a href="/all" class="button">All reversed IPs</a>
+      <a href="/health" class="button">Database Check</a>
+    </div>
+
+    <div class="cube"></div>
+    <div class="cube"></div>
+    <div class="cube"></div>
+    <div class="cube"></div>
+    <div class="cube"></div>
+    <div class="cube"></div>
+  </body>
+</html>

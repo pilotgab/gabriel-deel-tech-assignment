@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: private-repo-ssh
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: repository
+stringData:
+  type: git
+  url: git@github.com:pilotgab/deel-tech-assignment.git
+  sshPrivateKey: |
+    -----BEGIN OPENSSH PRIVATE KEY-----
+    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
+    AwQFBg==
+    -----END OPENSSH PRIVATE KEY-----

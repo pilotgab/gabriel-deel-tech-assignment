@@ -1,0 +1,31 @@
+applicationSet:
+  replicaCount: 2
+
+configs:
+  cm:
+    dex.config: "connectors:\n  # GitHub example\n  - type: github\n    id: github\n    name: GitHub\n    config:\n      clientID: a4d47f4ba1ec8a48cc2f\n      clientSecret: b53be7e498644ef8898859eda1af566388a36f75\n      orgs:\n      - name: pilotgab \n"
+    timeout.reconciliation: 100s
+    url: https://argocd.deel-test-env.com
+
+  rbac:
+  policy.csv: |
+    p, role:org-admin, applications, *, */*, allow
+    p, role:org-admin, applicationsets, *, */*, allow
+    p, role:org-admin, clusters, get, *, allow
+    p, role:org-admin, clusters, update, *, allow
+    p, role:org-admin, repositories, get, *, allow
+    p, role:org-admin, repositories, create, *, allow
+    p, role:org-admin, repositories, update, *, allow
+    p, role:org-admin, repositories, delete, *, allow
+    p, role:org-admin, projects, *, *, allow
+    p, role:org-admin, projects, update, *, allow
+    p, role:org-admin, logs, get, *, allow
+    p, role:org-admin, exec, create, */*, allow
+    p, role:org-admin, users, login, pilotgab, allow
+    u, pilotgab, role:org-admin
+  policy.default: role:readonly
+
+
+server:
+  service:
+    type: LoadBalancer

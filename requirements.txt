@@ -1,0 +1,13 @@
+pytest-html
+psycopg2
+Flask-SQLAlchemy
+Werkzeug
+Jinja2
+itsdangerous
+kubernetes
+pytest
+pytest-mock
+Flask
+MarkupSafe
+click
+flake8

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>All Reversed IPs</title>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <style>
+      body {
+        background: linear-gradient(to right, orange, skyblue);
+      }
+       
+.button {
+  background-color: #008cba; 
+  border: 2px solid #008cba; 
+  color: white; 
+  padding: 15px 32px; 
+  text-align: center; 
+  text-decoration: none; 
+  display: inline-block; 
+  font-size: 18px; 
+  margin: 10px; 
+  cursor: pointer; 
+  border-radius: 30px; 
+  transition-duration: 0.4s; 
+}
+
+
+.button:hover {
+  background-color: white; 
+  color: #008cba; 
+}
+
+      
+    
+      table {
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="center">
+      <h1>All Reversed IPs</h1>
+      <table>
+        {% for reversed_ip in reversed_ips %}
+        <tr>
+          <td>{{ reversed_ip }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+      <a href="/" class="button">Homepage</a>
+      <a href="/health" class="button">Database Check</a>
+    </div>
+    <canvas id="bubbles"></canvas>
+    <script src="/static/bubbles.js"></script>
+  </body>
+</html>

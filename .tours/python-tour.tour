@@ -1,0 +1,46 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "python-tour",
+  "steps": [
+    {
+      "file": "app.py",
+      "description": "Setting up logging: The code configures logging to write errors to a file named 'app.log'.",
+      "line": 8
+    },
+    {
+      "file": "app.py",
+      "description": "Flask application setup:\n\n    Creates a Flask app.\n    Defines the path for the SQLite database file.\n    Disables tracking modifications to improve performance.\n    Uses ProxyFix middleware to handle IP address issues behind a proxy like Nginx.\n\n",
+      "line": 10
+    },
+    {
+      "file": "app.py",
+      "description": "Database model:\n\n    Defines a model class IP with columns for id and reversed IP address.\n\n",
+      "line": 18
+    },
+    {
+      "file": "app.py",
+      "description": "The function first retrieves the IP address of the user making the request using the request.remote_addr attribute. It then uses a list comprehension to reverse the IP address by splitting it on the dot (.) character and reversing the resulting list.\n\nThe function then attempts to retrieve an existing entry for the reversed IP address in the database using the IP.query object and the filter_by method. If no entry is found, a new entry is created using the IP model and the reversed_ip attribute. The new entry is then added to the database using the db.session.add method and the db.session.commit method.\n\nFinally, the function renders a template called index.html that displays the IP address and the reversed IP address. If an error occurs, the function renders a template called error.html and returns a status code of 500.",
+      "line": 23
+    },
+    {
+      "file": "app.py",
+      "description": "This function displays a list of all IP addresses stored in the database. The function first retrieves all IP addresses from the database using the IP.query.all() method, and then it converts each IP address to its reverse form by accessing the reversed_ip attribute of each IP object in the list. Finally, the function passes the list of reversed IP addresses to the render_template() function to display them on a webpage.\n\nThe try block in the function handles any exceptions that may occur during the database query or template rendering process. If an exception is encountered, the app.logger.error() function is called to log the error message, and the render_template() function is called with the error template to display an error message to the user.",
+      "line": 37
+    },
+    {
+      "file": "app.py",
+      "description": "this function is used to check the health of the database connection. It starts by trying to query the IP table using the db.session.query method. If the query succeeds, it checks if there are any results. If there are results, it returns a success response with a message saying that the database connection is successful. If there are no results, it raises an Exception.\n\nIf the query fails, the code logs the error and returns a failure response with a message saying that the database connection failed.\n",
+      "line": 48
+    },
+    {
+      "file": "app.py",
+      "description": "The create_database function is called when the application starts, and it creates the database schema if it does not already exist. This is done by first creating a new database context (using the with app.app_context() statement), and then calling the db.create_all() method, which creates all the tables defined in the SQLAlchemy model.\n\nThis approach ensures that the database schema is created only once, and that it is created in the correct context (that is, the application context).",
+      "line": 59
+    },
+    {
+      "file": "app.py",
+      "description": "Main section:\n\n    Checks if the 'instance' directory exists and creates it if not.\n    Calls create_database() to create the necessary tables.\n    Runs the Flask app on host '0.0.0.0' and port 8080.\n\n",
+      "line": 63
+    }
+  ]
+}
