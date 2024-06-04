@@ -60,5 +60,5 @@ variable "min_capacity" {
 variable "instance_type" {
   description = "Instance type for worker nodes"
   type        = string
-  default     = "t2.micro"
+  default     = "t2.medium"
 }
