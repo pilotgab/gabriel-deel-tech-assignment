@@ -44,11 +44,11 @@ module "eks" {
   instance_type     = var.instance_type
 }
 
-module "cloudfront" {
-  source      = "../../modules/cloudfront"
-  region      = var.region
-  bucket_name = "deel-test-report"
-}
+#module "cloudfront" {
+ # source      = "../../modules/cloudfront"
+ # region      = var.region
+ # bucket_name = "deel-test-report"
+#}
 
 
 
