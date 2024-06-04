@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: installation-job
+spec:
+  template:
+    spec:
+      containers:
+      - name: installation-job
+        image: alpine:latest
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          chmod +x installation-tools.sh
+          installation-tools.sh
+      restartPolicy: Never
+  backoffLimit: 4
