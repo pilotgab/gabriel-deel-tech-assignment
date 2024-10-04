@@ -12,3 +12,4 @@ MarkupSafe
 click
 flake8
 gunicorn
+Flask-Testing
