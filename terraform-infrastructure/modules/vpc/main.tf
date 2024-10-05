@@ -37,7 +37,7 @@ module "vpc" {
   public_subnet_tags = {
     "kubernetes.io/cluster/${var.cluster_name}" = "shared"
     "kubernetes.io/role/elb"                    = "1"
-    "kubernetes.io/cluster/Deel-Test" = "owned"
+    "kubernetes.io/cluster/deel-test" = "owned"
   }
 
   private_subnet_tags = {

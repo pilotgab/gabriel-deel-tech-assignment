@@ -29,7 +29,7 @@ resource "aws_eks_node_group" "deel_eks_nodes" {
     aws_iam_role_policy_attachment.eks_node_policy_attachment,
     aws_iam_role_policy_attachment.eks_node_vpc_cni_policy_attachment,
     aws_iam_role_policy_attachment.eks_node_policy_attachment_2,
-    aws_eks_cluster.deel_eks,
+    aws_eks_cluster.deel_eks
   ]
 }
 

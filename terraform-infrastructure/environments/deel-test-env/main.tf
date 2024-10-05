@@ -32,8 +32,8 @@ resource "aws_security_group" "eks_security_group" {
 module "eks" {
   source          = "../../modules/eks"
   region          = var.region
-  cluster_name    = "Deel-Test"
-  node_group_name = "deel-eks-nodes"
+  cluster_name    = var.environment
+  node_group_name = var.environment
   private_subnets = [module.vpc.vpc_private_subnets[1],
   module.vpc.vpc_private_subnets[0]]
 
@@ -44,11 +44,11 @@ module "eks" {
   instance_type     = var.instance_type
 }
 
-#module "cloudfront" {
- # source      = "../../modules/cloudfront"
- # region      = var.region
- # bucket_name = "deel-test-report"
-#}
+module "cloudfront" {
+ source      = "../../modules/cloudfront"
+ region      = var.region
+ bucket_name = "deel-test-report"
+}
 
 
 
