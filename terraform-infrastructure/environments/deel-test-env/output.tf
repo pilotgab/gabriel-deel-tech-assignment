@@ -6,3 +6,8 @@ output "eks" {
   value = module.eks
 }
 
+output "cloudfront" {
+  value = module.cloudfront
+  
+}
+
