@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: deel-test
+  namespace: deel-test
+  labels:
+    name: deel-test
+spec:
+  selector:
+    matchLabels:
+      name: deel-test
+  endpoints:
+    - port: deel-test
+      path: /metrics
+  namespaceSelector:
+    matchNames:
+      - deel-test
