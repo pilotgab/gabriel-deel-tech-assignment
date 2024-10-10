@@ -1,6 +1,4 @@
-terraform {
-  backend "s3" {
-    bucket = "deel-test-1"
-    region = "us-east-1" 
-  }
-}
+#terraform {
+ ### region = "us-east-1" 
+ # }
+#}
