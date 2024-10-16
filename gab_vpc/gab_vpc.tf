@@ -1,7 +1,7 @@
 data "aws_availability_zones" "all" {}
 
 provider "aws" {
-  region = "eu-west-1"
+  region = var.region
 }
 
 module "gab_vpc" {
