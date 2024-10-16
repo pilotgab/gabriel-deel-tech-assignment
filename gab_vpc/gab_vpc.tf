@@ -1,18 +1,18 @@
+data "aws_availability_zones" "all" {}
+
 provider "aws" {
   region = "eu-west-1"
 }
 
-module "gab_vpc" {
+module "aws_vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "5.0.0" 
-
+  version = "5.13.0"
   name = "gab_vpc"
-  cidr = "10.98.0.0/16"
+  cidr = var.vpc_cidr
 
-  azs             = ["eu-west-1a", "eu-west-1b", "eu-west-1c"]
-  private_subnets = ["10.98.96.0/19", "10.98.128.0/19", "10.98.160.0/19", "10.98.192.0/19", "10.98.224.0/19"]
-  public_subnets  = ["10.98.0.0/19", "10.98.32.0/19", "10.98.64.0/19"]
-
+  azs             = data.aws_availability_zones.all.names
+  public_subnets  = var.public_subnets
+  private_sunets  = var.private_subnets
   enable_nat_gateway = true 
   single_nat_gateway = true  
 
@@ -24,18 +24,3 @@ module "gab_vpc" {
   }
 }
 
-
-# Output VPC ID
-output "vpc_id" {
-  value = module.gab_vpc.vpc_id
-}
-
-# Output Subnet IDs
-output "private_subnet_ids" {
-  value = module.gab_vpc.private_subnets
-}
-
-# Output the Public Subnet IDs
-output "public_subnet_ids" {
-  value = module.gab_vpc.public_subnets
-}
