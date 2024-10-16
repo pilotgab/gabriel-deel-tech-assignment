@@ -4,7 +4,7 @@ provider "aws" {
   region = "eu-west-1"
 }
 
-module "aws_vpc" {
+module "gab_vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "5.13.0"
   name = "gab_vpc"
