@@ -12,7 +12,7 @@ module "aws_vpc" {
 
   azs             = data.aws_availability_zones.all.names
   public_subnets  = var.public_subnets
-  private_sunets  = var.private_subnets
+  private_subnets  = var.private_subnets
   enable_nat_gateway = true 
   single_nat_gateway = true  
 
