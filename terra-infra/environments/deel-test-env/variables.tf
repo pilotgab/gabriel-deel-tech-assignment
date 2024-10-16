@@ -55,7 +55,7 @@ variable "cluster_endpoint_public_access" {
 variable "desired_capacity" {
   description = "Desired capacity of node group"
   type        = number
-  default     = 2
+  default     = 1
 }
 
 variable "max_capacity" {

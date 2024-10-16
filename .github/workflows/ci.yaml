@@ -111,7 +111,6 @@ jobs:
       - name: Invalidating CloudFront cache
         run: |
           aws cloudfront create-invalidation --distribution-id E29SOQGYIIWPSF --paths "/templates/index.html"
-        continue-on-error: true
 
       - name: Updating new image tag in values.yaml file
         env:
