@@ -1,17 +1,15 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: app-servic-monitor
-  namespace: deel-test
+  name: {{ .Release.Name }}-{{ .Values.container.name }}-monitor
   labels:
-    name: deel-test
+    app: {{ .Release.Name }}-{{ .Values.container.name }}
 spec:
   selector:
     matchLabels:
-      name: deel-test
+      app: {{ .Release.Name }}-{{ .Values.container.name }}
   endpoints:
-    - port: deel-test
-      path: /metrics
-  namespaceSelector:
-    matchNames:
-      - deel-test
+    - port: http
+      targetPort: {{ .Values.service.targetPort }}
+      path: /metrics  # Ensure your application exposes metrics at this path
+      interval: 30s   # Adjust the scrape interval as needed
