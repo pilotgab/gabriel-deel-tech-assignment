@@ -1,38 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Error</title>
     <style>
-        body {
-            background: linear-gradient(to right, orange, skyblue);
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            text-align: center;
-        }
-        h1 {
-            color: #f44336; /* Adding a color to emphasize the error */
-        }
-        p {
-            margin-top: 20px;
-            font-size: 18px;
-            background-color: rgba(255, 255, 255, 0.8);
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-        }
+      body {
+        background: linear-gradient(to right, orange, skyblue);
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        text-align: center;
+      }
+      h1 {
+        color: #f44336; /* Adding a color to emphasize the error */
+      }
+      p {
+        margin-top: 20px;
+        font-size: 18px;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div>
-        <h1>Oops, something went wrong!</h1>
-        <p>We are sorry for the inconvenience. Please try again later.</p>
+      <h1>Oops, something went wrong!</h1>
+      <p>We are sorry for the inconvenience. Please try again later.</p>
+      <p>Error details: {{ error_message }}</p>
     </div>
-</body>
+  </body>
 </html>

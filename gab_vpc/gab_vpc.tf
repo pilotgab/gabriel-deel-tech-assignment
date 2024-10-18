@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 provider "aws" {
   region = "eu-west-1"
 }
@@ -19,6 +20,26 @@ module "gab_vpc" {
   enable_flow_log = true
   flow_log_cloudwatch_iam_role_arn   = aws_iam_role.vpc_flow_log_role.arn
 
+=======
+data "aws_availability_zones" "all" {}
+
+provider "aws" {
+  region = var.region
+}
+
+module "vpc" {
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "5.13.0"
+  name = "gab_vpc"
+  cidr = var.vpc_cidr
+
+  azs             = data.aws_availability_zones.all.names
+  public_subnets  = var.public_subnets
+  private_subnets  = var.private_subnets
+  enable_nat_gateway = true 
+  single_nat_gateway = true  
+
+>>>>>>> 6bd57ddf0a9579a5839da06c209e4a06a43fd027
 
   tags = {
     Terraform = "true"
@@ -27,6 +48,7 @@ module "gab_vpc" {
   }
 }
 
+<<<<<<< HEAD
 
 resource "aws_iam_role" "vpc_flow_log_role" {
   name = "vpcFlowLogRole"
@@ -96,3 +118,5 @@ output "private_subnet_ids" {
 output "public_subnet_ids" {
   value = module.gab_vpc.public_subnets
 }
+=======
+>>>>>>> 6bd57ddf0a9579a5839da06c209e4a06a43fd027

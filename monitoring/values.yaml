@@ -9,6 +9,6 @@ grafana:
     datasources:
       defaultDatasourceEnabled: true
   additionalDataSources:
-    - name: Loki
+    - name: loki
       type: loki
       url: http://loki-loki-distributed-query-frontend.monitoring:3100
