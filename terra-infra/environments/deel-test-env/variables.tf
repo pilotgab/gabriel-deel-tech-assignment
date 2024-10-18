@@ -28,7 +28,7 @@ variable "vpc_database_subnets" {
 
 variable "region" {
   description = "AWS Region for the resources"
-  default     = "eu-west-1"
+  default     = "us-east-1"
 }
 
 variable "enable_private_subnet_internet_access" {
