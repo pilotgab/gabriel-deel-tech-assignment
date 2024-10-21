@@ -9,5 +9,6 @@ spec:
     app: {{ .Release.Name }}
   ports:
     - protocol: TCP
+      name: m-http
       port: {{ .Values.service.port }}
       targetPort: {{ .Values.service.targetPort }}

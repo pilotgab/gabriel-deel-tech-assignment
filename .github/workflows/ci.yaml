@@ -117,8 +117,8 @@ jobs:
           ECR_REGISTRY: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
         run: |
           IMAGE_TAG=${{ steps.sha.outputs.sha }}
-          sed -i 's|repository:.*$|repository: '"$ECR_REGISTRY"'|' deel-test/values.yaml
-          sed -i 's|tag:.*$|tag: '"$IMAGE_TAG"'|' deel-test/values.yaml
+          sed -i 's|repository:.*$|repository: '"$ECR_REGISTRY"'|' deel-app/values.yaml
+          sed -i 's|tag:.*$|tag: '"$IMAGE_TAG"'|' deel-app/values.yaml
 
       - name: Setting Git Config
         run: |
@@ -126,7 +126,7 @@ jobs:
           git config --local user.name "GH-runner"
 
       - name: Stage Changes
-        run: git add deel-test/values.yaml
+        run: git add deel-app/values.yaml
 
       - name: Commit Changes
         run: git diff-index --quiet HEAD || git commit -m "Update image repository and tag to $ECR_REGISTRY:${{ steps.sha.outputs.sha }}"
