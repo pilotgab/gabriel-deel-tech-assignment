@@ -9,8 +9,8 @@ image:
   pullPolicy: Always
 service:
   type: ClusterIP
-  port: 80
-  targetPort: 8080
+  port: "80" # Port value as a string
+  targetPort: "8080" # Target port value as a string
 resources:
   requests:
     cpu: "100m"
@@ -29,7 +29,7 @@ strategy:
   maxSurge: 10
 container:
   name: deel-app
-  port: 8080
+  port: "8080" # Container port as a string
 ingress:
   enabled: false
   hosts:
@@ -38,7 +38,7 @@ ingress:
         - path: /
           pathType: ImplementationSpecific
           backend:
-          service:
-            name: m-http
-            port:
-              number: { { .Values.service.port } }
+            service:
+              name: m-http
+              port:
+                number: "{{ .Values.service.port }}" # Port value as a string
