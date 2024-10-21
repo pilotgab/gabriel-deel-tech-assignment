@@ -31,7 +31,7 @@ container:
   name: deel-app
   port: "8080" # Container port as a string
 ingress:
-  enabled: false
+  enabled: true
   hosts:
     - host: deel.gabapp.tech
       paths:
