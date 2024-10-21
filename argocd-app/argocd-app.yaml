@@ -1,21 +1,20 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: deel-test
+  name: deel-app
   namespace: argocd
 spec:
-  project: default
+  destination:
+    namespace: deel-app
+    server: https://kubernetes.default.svc
   source:
-    repoURL: "https://github.com/pilotgab/gabriel-deel-tech-assignment.git"
-    path: ./deel-test
-    targetRevision: main
+    repoURL: https://github.com/pilotgab/gabriel-deel-tech-assignment.git
+    path: ./deel-app
+    targetRevision: HEAD
     helm:
       valueFiles:
         - values.yaml
-
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: "deel-test"
+  project: default
   syncPolicy:
     automated:
       prune: true

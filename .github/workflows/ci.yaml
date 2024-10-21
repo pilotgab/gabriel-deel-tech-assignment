@@ -105,12 +105,12 @@ jobs:
 
       - name: Syncing static content to S3
         run: |
-          aws s3 sync ./templates/static s3://deel-test-1/templates/static
-          aws s3 cp ./templates/ s3://deel-test-1/templates/ --recursive --exclude "*" --include "*.html"
+          aws s3 sync ./templates/static s3://deel-test-report/templates/static
+          aws s3 cp ./templates/ s3://deel-test-report/templates/ --recursive --exclude "*" --include "*.html"
 
       - name: Invalidating CloudFront cache
         run: |
-          aws cloudfront create-invalidation --distribution-id E2CFHVX0LU6DOS --paths "/templates/index.html"
+          aws cloudfront create-invalidation --distribution-id E3M1DNH8UC9PA7 --paths "/templates/index.html"
 
       - name: Updating new image tag in values.yaml file
         env:
