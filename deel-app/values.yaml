@@ -7,10 +7,12 @@ image:
   repository: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
   tag: f921037
   pullPolicy: Always
+
 service:
   type: LoadBalancer
   port: "80" # Port value as a string
   targetPort: "8080" # Target port value as a string
+
 resources:
   requests:
     cpu: "100m"
@@ -18,22 +20,26 @@ resources:
   limits:
     cpu: "500m"
     memory: "500Mi"
+
 autoscaling:
   enabled: false
   minReplicas: 3
-  maxReplicas: 10
+  maxReplicas: 5
   targetCPUUtilizationPercentage: 80
+
 strategy:
   type: RollingUpdate
   maxUnavailable: 1
-  maxSurge: 10
+  maxSurge: 5
+
 container:
   name: deel-app
   port: "8080" # Container port as a string
+
 ingress:
   enabled: false
   hosts:
     - host: deel.gabapp.tech
       paths:
-        - path: /
+        - path: "/"
           pathType: ImplementationSpecific

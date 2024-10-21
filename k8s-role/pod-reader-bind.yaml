@@ -1,13 +1,12 @@
 apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+kind: ClusterRoleBinding
 metadata:
-  name: read-pods
-  namespace: deel-app
+  name: metrics-reader-binding
 subjects:
   - kind: ServiceAccount
     name: default
-    namespace: deel-app
+    namespace: kube-system
 roleRef:
-  kind: Role
-  name: pod-reader
+  kind: ClusterRole
+  name: metrics-reader
   apiGroup: rbac.authorization.k8s.io
