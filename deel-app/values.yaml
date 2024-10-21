@@ -5,7 +5,7 @@ replicaCount: 3
 namespace: deel-app
 image:
   repository: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
-  tag: e444783
+  tag: 9461a38
   pullPolicy: Always
 service:
   type: LoadBalancer
