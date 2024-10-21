@@ -8,6 +8,6 @@ spec:
     matchLabels:
       app: {{ .Release.Name }}
   endpoints:
-  - port: {{ .Values.service.port }}
+  - port: m-http
     interval: 30s
     path: /metrics
