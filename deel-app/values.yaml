@@ -31,10 +31,14 @@ container:
   name: deel-app
   port: 8080
 ingress:
-  enabled: true
+  enabled: false
   hosts:
     - host: deel.gabapp.tech
       paths:
         - path: /
           pathType: ImplementationSpecific
-  tls: []
+          backend:
+          service:
+            name: m-http
+            port:
+              number: { { .Values.service.port } }
