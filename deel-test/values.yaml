@@ -7,7 +7,7 @@ replicaCount: 5
 
 image:
   repository: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
-  tag: dce1b67
+  tag: 5685a64
   pullPolicy: Always
 
 service:
