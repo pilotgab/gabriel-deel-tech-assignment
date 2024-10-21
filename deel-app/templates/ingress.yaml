@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-ingress
+  namespace: deel-app
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: deel.gabapp.tech
+    http:
+      paths:
+      - path: "/"
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: deel-app-service
+            port:
+              number: 80
+  
