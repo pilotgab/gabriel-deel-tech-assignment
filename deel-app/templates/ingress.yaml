@@ -14,7 +14,7 @@ spec:
         pathType: ImplementationSpecific
         backend:
           service:
-            name: m-http
+            name: {{ .Release.Name }}-service
             port:
               number: {{ .Values.service.port }}
   

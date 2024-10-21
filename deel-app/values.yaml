@@ -39,6 +39,6 @@ ingress:
           pathType: ImplementationSpecific
           backend:
             service:
-              name: m-http
+              name: {{ .Release.Name }}-service
               port:
                 number: "{{ .Values.service.port }}" # Port value as a string
