@@ -28,10 +28,8 @@ def test_display_ip(client):
     response = client.get('/', headers={"X-Forwarded-For": "203.0.113.195"})
     assert response.status_code == 200
     assert b'Your IP is: <strong>203.0.113.195</strong>' in response.data
-    assert (
-        b'Your reversed IP is: <strong>195.113.0.203</strong>' 
-        in response.data
-    )
+    assert (b'Your reversed IP is: <strong>195.113.0.203</strong>'
+            in response.data)  # Trailing whitespace removed
 
     # Check if reversed IP is stored in the database
     with app.app_context():
