@@ -116,7 +116,7 @@ jobs:
         run: |
           IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-7)
           docker build -t $ECR_REGISTRY:$IMAGE_TAG .
-          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV  # Save IMAGE_TAG for later jobs
 
   trivy-scan:
     needs: build
@@ -133,9 +133,9 @@ jobs:
       - name: Run Trivy Scan
         env:
           ECR_REGISTRY: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
+          IMAGE_TAG: ${{ env.IMAGE_TAG }} # Use the IMAGE_TAG from the build job
 
         run: |
-          IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-7)
           trivy image --format template --template "@/contrib/junit.tpl" -o trivy-report.xml $ECR_REGISTRY:$IMAGE_TAG
 
       - name: Upload Trivy Report
@@ -163,6 +163,7 @@ jobs:
       - name: Push Docker Image to ECR
         env:
           ECR_REGISTRY: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
+          IMAGE_TAG: ${{ env.IMAGE_TAG }} # Use the IMAGE_TAG from the build job
         run: |
           docker push $ECR_REGISTRY:$IMAGE_TAG
 
@@ -173,8 +174,7 @@ jobs:
 
       - name: Invalidating CloudFront cache
         run: |
-          aws cloudfront create-invalidation --distribution-id
-          E254F1VELFWB90 --paths "/templates/index.html"
+          aws cloudfront create-invalidation --distribution-id E254F1VELFWB90 --paths "/templates/index.html"
 
   update-helm:
     needs: push-to-ecr
@@ -197,7 +197,8 @@ jobs:
         run: git add deel-app/values.yaml
 
       - name: Commit Changes
-        run: git diff-index --quiet HEAD || git commit -m "Update image repository and tag to $ECR_REGISTRY:$IMAGE_TAG"
+        run: |
+          git diff-index --quiet HEAD || git commit -m "Update image repository and tag to $ECR_REGISTRY:$IMAGE_TAG"
 
       - name: Push Changes
         id: push-changes
