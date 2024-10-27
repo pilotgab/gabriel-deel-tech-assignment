@@ -1,8 +1,8 @@
 import pytest
-import os
 from app import app, db, IP
 
 # Create a test client and configure the test environment
+
 @pytest.fixture
 def client():
     app.config['TESTING'] = True
@@ -62,7 +62,7 @@ def test_create_database(client):
         ip_entry = IP(reversed_ip='127.0.0.1')
         db.session.add(ip_entry)
         db.session.commit()
-        
+
         assert IP.query.count() == 1
         # Test that the entry has been stored correctly
         retrieved_entry = IP.query.first()
