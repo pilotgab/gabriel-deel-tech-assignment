@@ -129,13 +129,12 @@ jobs:
           ECR_REGISTRY: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
           IMAGE_TAG: ${{ env.IMAGE_TAG }}
         run: |
-          trivy image --format template --template "@/contrib/junit.tpl" -o trivy-report.xml $ECR_REGISTRY:$IMAGE_TAG
-
+          trivy image --format json -o trivy-report.json $ECR_REGISTRY:$IMAGE_TAG
       - name: Upload Trivy Report
         uses: actions/upload-artifact@v4
         with:
           name: trivy-report
-          path: trivy-report.xml
+          path: trivy-report.json
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
