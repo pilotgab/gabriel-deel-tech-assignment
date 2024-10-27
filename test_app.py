@@ -1,8 +1,8 @@
 import pytest
+import os
 from app import app, db, IP
 
 # Create a test client and configure the test environment
-
 @pytest.fixture
 def client():
     app.config['TESTING'] = True
@@ -13,6 +13,7 @@ def client():
         db.session.remove()
         db.drop_all()
 
+
 @pytest.fixture(autouse=True)
 def remove_ip_entries(client):
     # Clean up (remove entries) before each test
@@ -21,17 +22,22 @@ def remove_ip_entries(client):
         db.session.remove()
         db.drop_all()
 
+
 def test_display_ip(client):
     # Simulate a request to the display_ip route with X-Forwarded-For header
     response = client.get('/', headers={"X-Forwarded-For": "203.0.113.195"})
     assert response.status_code == 200
     assert b'Your IP is: <strong>203.0.113.195</strong>' in response.data
-    assert b'Your reversed IP is: <strong>195.113.0.203</strong>' in response.data
+    assert (
+        b'Your reversed IP is: <strong>195.113.0.203</strong>' 
+        in response.data
+    )
 
     # Check if reversed IP is stored in the database
     with app.app_context():
         ip_entry = IP.query.filter_by(reversed_ip='195.113.0.203').first()
         assert ip_entry is not None
+
 
 def test_display_all(client):
     # Ensure display_all route works, initially should return an empty list
@@ -50,11 +56,13 @@ def test_display_all(client):
     assert response.status_code == 200
     assert reversed_ip.encode() in response.data
 
+
 def test_health_check(client):
     # Test the health check route
     response = client.get('/health')
     assert response.status_code == 200
     assert b'Database connection successful' in response.data
+
 
 def test_create_database(client):
     # Test database creation
