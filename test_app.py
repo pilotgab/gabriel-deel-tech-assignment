@@ -1,6 +1,6 @@
 import pytest
-import os
-from app import app, db, IP
+from app import app, db, IP  # Removed 'os' import
+
 
 # Create a test client and configure the test environment
 @pytest.fixture
