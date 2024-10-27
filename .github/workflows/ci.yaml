@@ -116,7 +116,7 @@ jobs:
         run: |
           IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-7)
           docker build -t $ECR_REGISTRY:$IMAGE_TAG .
-          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV  # Save IMAGE_TAG for later jobs
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
   trivy-scan:
     needs: build
@@ -133,9 +133,10 @@ jobs:
       - name: Run Trivy Scan
         env:
           ECR_REGISTRY: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
-          IMAGE_TAG: ${{ env.IMAGE_TAG }} # Use the IMAGE_TAG from the build job
-
+          IMAGE_TAG: ${{ env.IMAGE_TAG }}
         run: |
+
+          IMAGE_TAG=${IMAGE_TAG:-latest}  # Default to 'latest' if IMAGE_TAG is empty
           trivy image --format template --template "@/contrib/junit.tpl" -o trivy-report.xml $ECR_REGISTRY:$IMAGE_TAG
 
       - name: Upload Trivy Report
