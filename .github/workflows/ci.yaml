@@ -101,7 +101,7 @@ jobs:
           pytest int_test_app.py
 
   build:
-    needs: test
+    needs: integration-test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -116,7 +116,7 @@ jobs:
         run: |
           IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-7)
           docker build -t $ECR_REGISTRY:$IMAGE_TAG .
-          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENVG
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
   trivy-scan:
     needs: build
