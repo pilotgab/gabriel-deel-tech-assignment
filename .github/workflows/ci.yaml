@@ -123,7 +123,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install Trivy
         run: |
@@ -137,7 +137,7 @@ jobs:
           trivy image --format template --template "@/contrib/junit.tpl" -o trivy-report.xml $ECR_REGISTRY:$IMAGE_TAG
 
       - name: Upload Trivy Report
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: trivy-report
           path: trivy-report.xml
