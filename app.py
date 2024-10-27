@@ -38,12 +38,14 @@ metrics = PrometheusMetrics(app)
 
 
 # Define IP model
+
 class IP(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     reversed_ip = db.Column(db.String(15), nullable=False)
 
 
 # Function to create the database
+
 def create_database():
     try:
         with app.app_context():
@@ -53,18 +55,20 @@ def create_database():
 
 
 # Route to display the client's IP address
+
 @app.route('/')
 def display_ip():
     try:
         # Check for X-Forwarded-For header
         if request.headers.get('X-Forwarded-For'):
-            ip_address = request.headers.get('X-Forwarded-For').split(',')[0].strip()  # Get the first IP in the list
+            # Get the first IP in the list
+            ip_address = request.headers.get('X-Forwarded-For') \
+             .split(',')[0].strip()
         else:
             ip_address = request.remote_addr or "127.0.0.1"
-        
+
         reversed_ip = '.'.join(ip_address.split('.')[::-1])
         existing_ip = IP.query.filter_by(reversed_ip=reversed_ip).first()
-
         if not existing_ip:
             new_ip_entry = IP(reversed_ip=reversed_ip)
             db.session.add(new_ip_entry)
@@ -81,8 +85,8 @@ def display_ip():
         return render_template('error.html'), 500
 
 
-
 # Route to display all stored IP addresses
+
 @app.route('/all')
 def display_all():
     try:
@@ -95,11 +99,11 @@ def display_all():
 
 
 # Route to perform a health check on the database connection
+
 @app.route('/health')
 def health_check():
     try:
         result = db.session.query(IP).first()
-
         if result is not None:
             return render_template(
                 'health.html',
@@ -128,6 +132,5 @@ def health_check():
 if __name__ == '__main__':
     if not os.path.exists('instance'):
         os.makedirs('instance')
-
     create_database()
     app.run(host='0.0.0.0', port=8080)
