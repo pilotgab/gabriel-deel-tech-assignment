@@ -2,7 +2,7 @@
 
 variable "environment" {
   default = "deel-test"
-  
+
 }
 variable "vpc_cidr" {
   description = "CIDR block for the VPC"
@@ -43,12 +43,12 @@ variable "cluster_endpoint_public_access" {
   default     = true
 }
 
- variable "flow_log_cw_log_group_retention_days" {
-   description = "Retention days for flow log in CloudWatch"
-   default     = 7
-  }
+variable "flow_log_cw_log_group_retention_days" {
+  description = "Retention days for flow log in CloudWatch"
+  default     = 7
+}
 
-  
+
 
 # EKS Cluster-specific variables
 
@@ -78,7 +78,7 @@ variable "instance_type" {
 
 variable "cluster_name" {
   description = "cluster name"
-  type = string
-  default = "deel-test"
-  
+  type        = string
+  default     = "deel-test"
+
 }

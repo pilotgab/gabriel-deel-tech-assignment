@@ -1,5 +1,4 @@
 pytest-html
-psycopg2-binary==2.9.3
 Flask-SQLAlchemy==3.1.1
 Werkzeug==2.2.3
 zipp>=3.19.1
@@ -14,6 +13,7 @@ MarkupSafe
 click
 psycopg2-binary
 pytest-flask
+pytest-cov
 flake8
 gunicorn==20.1.0  
 Flask-Testing

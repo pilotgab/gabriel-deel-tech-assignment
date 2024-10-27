@@ -36,7 +36,7 @@ jobs:
           pip install flake8
 
       - name: Lint with flake8
-        run: flake8 app.py --show-source --statistics
+        run: flake8 . --show-source --statistics
 
   test:
     needs: lint
@@ -63,8 +63,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run tests
-        run: pytest test_app.py --html=report.html
+      - name: Run Unit Tests
+        run: pytest test_app.py --maxfail=1 --disable-warnings --html=report.html
+
+      - name: Check Coverage
+        run: |
+          pytest --cov=app --cov-fail-under=80 --cov-report=xml:cov-report.xml
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
@@ -72,8 +76,28 @@ jobs:
           role-to-assume: arn:aws:iam::324037298804:role/deel-test-oidc-role
           aws-region: us-east-1
 
-      - name: Upload HTML report to S3
-        run: aws s3 cp report.html s3://deel-test-1/report.html
+      - name: Upload HTML and Coverage report to S3
+        run: aws s3 cp report.html s3:deel-test-1/reports/report.html
+          aws s3 cp cov-report.xml s3://deel-test-1/reports/cov-report.xml
+
+  integration-test:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.8"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Integration Tests
+        run: |
+          pytest int_test_app.py
 
   build:
     needs: test
@@ -82,25 +106,61 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Build and Tag Docker Image
+        env:
+          ECR_REGISTRY: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
+        run: |
+          IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-7)
+          docker build -t $ECR_REGISTRY:$IMAGE_TAG .
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENVG
+
+  trivy-scan:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Trivy
+        run: |
+          sudo apt-get install -y jq
+          wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.20.2_Linux-64bit.deb
+          sudo dpkg -i trivy_0.20.2_Linux-64bit.deb
+
+      - name: Run Trivy Scan
+        run: |
+          IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-7)
+          trivy image --format template --template "@/contrib/junit.tpl" -o trivy-report.xml $ECR_REGISTRY:$IMAGE_TAG
+
+      - name: Upload Trivy Report
+        uses: actions/upload-artifact@v2
+        with:
+          name: trivy-report
+          path: trivy-report.xml
+
+  push-to-ecr:
+    needs: trivy-scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::324037298804:role/deel-test-oidc-role
           aws-region: us-east-1
 
-      - name: Login to Amazon ECR
-        uses: aws-actions/amazon-ecr-login@v1
+      - name: Log in to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Get the short SHA
-        id: sha
-        run: echo "::set-output name=sha::$(git rev-parse --short HEAD)"
-
-      - name: Build, Tag, and Push Docker image
+      - name: Push Docker Image to ECR
         env:
           ECR_REGISTRY: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
         run: |
-          IMAGE_TAG=${{ steps.sha.outputs.sha }}
-          docker build -t $ECR_REGISTRY:$IMAGE_TAG .
           docker push $ECR_REGISTRY:$IMAGE_TAG
 
       - name: Syncing static content to S3
@@ -110,27 +170,31 @@ jobs:
 
       - name: Invalidating CloudFront cache
         run: |
-          aws cloudfront create-invalidation --distribution-id E32635L4GKC51K --paths "/templates/index.html"
+          aws cloudfront create-invalidation --distribution-id
+          E254F1VELFWB90 --paths "/templates/index.html"
+
+  update-helm:
+    needs: push-to-ecr
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Updating new image tag in values.yaml file
-        env:
-          ECR_REGISTRY: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
-
         run: |
-          IMAGE_TAG=${{ steps.sha.outputs.sha }}
           sed -i 's|repository:.*$|repository: '"$ECR_REGISTRY"'|' deel-app/values.yaml
           sed -i 's|tag:.*$|tag: '"$IMAGE_TAG"'|' deel-app/values.yaml
 
-      - name: Setting Git Config
+      - name: Commit and Push Changes
         run: |
-          git config --local user.email "captain.gab@protonmail.com"
-          git config --local user.name "GH-runner"
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
 
       - name: Stage Changes
         run: git add deel-app/values.yaml
 
       - name: Commit Changes
-        run: git diff-index --quiet HEAD || git commit -m "Update image repository and tag to $ECR_REGISTRY:${{ steps.sha.outputs.sha }}"
+        run: git diff-index --quiet HEAD || git commit -m "Update image repository and tag to $ECR_REGISTRY:$IMAGE_TAG"
 
       - name: Push Changes
         id: push-changes

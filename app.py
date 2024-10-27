@@ -7,7 +7,7 @@ from prometheus_flask_exporter import PrometheusMetrics
 
 
 # Configure logging
-logging.basicConfig(filename='app.log', level=logging.ERROR)
+logging.basicConfig(filename='app.log', level=logging.INFO)
 
 
 # Initialize Flask app
@@ -56,7 +56,12 @@ def create_database():
 @app.route('/')
 def display_ip():
     try:
-        ip_address = request.remote_addr or "127.0.0.1"
+        # Check for X-Forwarded-For header
+        if request.headers.get('X-Forwarded-For'):
+            ip_address = request.headers.get('X-Forwarded-For').split(',')[0].strip()  # Get the first IP in the list
+        else:
+            ip_address = request.remote_addr or "127.0.0.1"
+        
         reversed_ip = '.'.join(ip_address.split('.')[::-1])
         existing_ip = IP.query.filter_by(reversed_ip=reversed_ip).first()
 
@@ -64,6 +69,7 @@ def display_ip():
             new_ip_entry = IP(reversed_ip=reversed_ip)
             db.session.add(new_ip_entry)
             db.session.commit()
+            app.logger.info(f"New IP entry created: {reversed_ip}")
 
         return render_template(
             'index.html',
@@ -73,6 +79,7 @@ def display_ip():
     except Exception as error:
         app.logger.error(f"Error occurred in display_ip: {error}")
         return render_template('error.html'), 500
+
 
 
 # Route to display all stored IP addresses

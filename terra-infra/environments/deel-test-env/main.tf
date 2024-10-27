@@ -45,9 +45,9 @@ module "eks" {
 }
 
 module "cloudfront" {
- source      = "../../modules/cloudfront"
- region      = var.region
- bucket_name = "deel-test-report"
+  source      = "../../modules/cloudfront"
+  region      = var.region
+  bucket_name = "deel-test-report"
 }
 
 
