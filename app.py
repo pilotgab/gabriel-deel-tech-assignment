@@ -6,7 +6,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from prometheus_flask_exporter import PrometheusMetrics
 
 
-# Configure logging
+# Configure logging error
 logging.basicConfig(filename='app.log', level=logging.INFO)
 
 
