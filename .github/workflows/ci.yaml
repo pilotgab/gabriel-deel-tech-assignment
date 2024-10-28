@@ -126,10 +126,10 @@ jobs:
 
       - name: Run Trivy Scan
         env:
-          ECR_REGISTRY: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
           IMAGE_TAG: ${{ env.IMAGE_TAG }}
         run: |
           trivy image --format json -o trivy-report.json $ECR_REGISTRY:$IMAGE_TAG
+
       - name: Upload Trivy Report
         uses: actions/upload-artifact@v4
         with:
@@ -169,6 +169,9 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Updating new image tag in values.yaml file
+        env:
+          ECR_REGISTRY: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
+          IMAGE_TAG: ${{ env.IMAGE_TAG }}
         run: |
           sed -i 's|repository:.*$|repository: '"$ECR_REGISTRY"'|' deel-app/values.yaml
           sed -i 's|tag:.*$|tag: '"$IMAGE_TAG"'|' deel-app/values.yaml
