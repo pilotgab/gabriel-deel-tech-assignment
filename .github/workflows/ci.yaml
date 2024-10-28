@@ -119,23 +119,22 @@ jobs:
           docker build -t $ECR_REGISTRY:$IMAGE_TAG .
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
+      - name: Cache Trivy DB
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/trivy
+          key: trivy-db-${{ runner.os }}-${{ hashFiles('Dockerfile') }}
+
       - name: Install Trivy
         run: |
           wget https://github.com/aquasecurity/trivy/releases/download/v0.56.2/trivy_0.56.2_Linux-64bit.deb
           sudo dpkg -i trivy_0.56.2_Linux-64bit.deb
 
-      - name: Log in to GitHub Container Registry
-        env:
-          GHCR_USERNAME: ${{ github.actor }}
-          GHCR_TOKEN: ${{ secrets.TOKEN }}
-        run: |
-          echo $GHCR_TOKEN | docker login ghcr.io -u $GHCR_USERNAME --password-stdin
-
       - name: Run Trivy Scan
         env:
           IMAGE_TAG: ${{ env.IMAGE_TAG }}
         run: |
-          trivy image --format json -o trivy-report.json $ECR_REGISTRY:$IMAGE_TAG
+          trivy image --format json -o trivy-report.json --cache-dir ~/.cache/trivy $ECR_REGISTRY:$IMAGE_TAG
 
       - name: Upload Trivy Report
         uses: actions/upload-artifact@v4
