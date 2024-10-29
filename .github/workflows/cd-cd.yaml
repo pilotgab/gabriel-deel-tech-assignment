@@ -59,15 +59,15 @@ jobs:
 
       - name: Run unit tests with pytest
         run: |
-          pytest unit_test.py --maxfail=1 --disable-warnings --html=reports/unit-report.html
+          pytest unit_test.py --html=reports/test-report-unit.html
 
       - name: Run integration tests with pytest
         run: |
-          pytest int_test.py --maxfail=1 --disable-warnings --html=reports/int-report.html
+          pytest int_test.py --html=reports/test-report-int.html
 
       - name: Run smoke tests with pytest
         run: |
-          pytest smoke_test.py --maxfail=1 --disable-warnings --html=reports/smoke-report.html
+          pytest smoke_test.py --html=reports/test-report-smoke.html
 
       - name: Check Coverage
         run: |
