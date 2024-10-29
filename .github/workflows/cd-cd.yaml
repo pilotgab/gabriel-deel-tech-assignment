@@ -117,6 +117,7 @@ jobs:
           ECR_REGISTRY: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
           IMAGE_TAG: ${{ env.IMAGE_TAG }}
         run: |
+          export TRIVY_DB_REPO="ghcr.io/aquasecurity/trivy-db"
           trivy image --format json -o trivy-report.json --cache-dir ~/.cache/trivy $ECR_REGISTRY:$IMAGE_TAG
 
       - name: Upload Trivy Report
