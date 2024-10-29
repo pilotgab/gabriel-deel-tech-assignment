@@ -161,6 +161,9 @@ jobs:
           token: ${{ secrets.TOKEN }}
 
       - name: Updating new image tag in values.yaml file
+        env:
+          ECR_REGISTRY: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
+          IMAGE_TAG: ${{ env.IMAGE_TAG }}
         run: |
           echo "Updating values.yaml with IMAGE_TAG=$IMAGE_TAG"
           sed -i 's|tag:.*$|tag: '"$IMAGE_TAG"'|' deel-app/values.yaml
