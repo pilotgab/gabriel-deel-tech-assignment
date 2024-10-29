@@ -1,9 +1,10 @@
+import os
 from setuptools import setup, find_packages
 
 
 def read_requirements(file):
     """Read the requirements from a given file."""
-    with open(file) as f:
+    with open(os.path.join(os.path.dirname(__file__), file)) as f:
         return f.read().splitlines()
 
 
