@@ -1,11 +1,14 @@
 import pytest
-from app import app, db, IP
+from app import app, db  # Removed IP since it's unused
+
 
 @pytest.fixture
 def client():
     # Set up the Flask test client
     app.config['TESTING'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'  # In-memory DB for testing
+    app.config['SQLALCHEMY_DATABASE_URI'] = (
+        'sqlite:///:memory:'  # In-memory DB for testing
+    )
     with app.test_client() as client:
         with app.app_context():
             # Create all tables in the in-memory database
