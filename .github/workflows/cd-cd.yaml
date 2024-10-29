@@ -1,8 +1,12 @@
-name: Continuous-Integration-Pipeline(CI)
+name: CI-Pipeline
 on:
   push:
     branches:
       - main
+    paths-ignore:
+      - "deel-test"
+      - "README.md"
+
 permissions:
   id-token: write
   contents: write
@@ -14,132 +18,132 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.x"
-      - name: Cache pip
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip          
           pip install flake8
+
       - name: Lint with flake8
         run: flake8 . --show-source --statistics
 
-  test:
+  build-and-test:
     needs: lint
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.x"
-      - name: Cache pip
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-      - name: Install dependencies
+
+      - name: Install build dependencies
         run: |
-          python -m pip install --upgrade pip          
-          pip install -r requirements.txt
-      - name: Run Unit Tests
-        run: pytest test_app.py --maxfail=1 --disable-warnings --html=report.html
+          python -m pip install --upgrade pip
+          pip install -r requirment.txt
+
+      - name: Build Python artifact
+        run: python -m build
+
+      - name: Install built package
+        run: |
+          pip install dist/*.whl
+
+      - name: Run tests with pytest
+        run: |
+          pytest unit_test.py --maxfail=1 --disable-warnings --html=reports/unit-report.html
+          pytest int_test.py --maxfail=1 --disable-warnings --html=reports/int-report.html
+          pytest smoke_test.py --maxfail=1 --disable-warnings --html=reports/smoke-report.html
+
       - name: Check Coverage
         run: |
-          pytest --cov=app --cov-fail-under=70 --cov-report=xml:cov-report.xml
+          pytest --cov=app --cov-fail-under=70 --cov-report=xml:reports/cov-report.xml
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
           role-to-assume: arn:aws:iam::324037298804:role/deel-test-oidc-role
           aws-region: us-east-1
+
       - name: Upload HTML and Coverage report to S3
         run: |
-          aws s3 cp report.html s3://deel-test-1/report.html          
-          aws s3 cp cov-report.xml s3://deel-test-1/cov-report.xml
-
-  integration-test:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: "3.8"
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-      - name: Run Integration Tests
-        run: |
-          pytest int_test_app.py
+          aws s3 cp ./reports/* s3://deel-test-1/reports
 
   build-scan-publish:
-    needs: integration-test
+    needs: build-and-test
     runs-on: ubuntu-latest
-    outputs:
-      IMAGE_TAG: ${{ steps.build_image.outputs.IMAGE_TAG }}
+    #outputs:
+    #  IMAGE_TAG: ${{ steps.build_image.outputs.IMAGE_TAG }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
       - name: Install dependencies
         run: pip install -r requirements.txt
+
       - name: Build and Tag Docker Image
         id: build_image
-        env:
-          ECR_REGISTRY: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
+        # env:
+        #  ECR_REGISTRY: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
         run: |
           IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-7)          
           docker build -t $ECR_REGISTRY:$IMAGE_TAG .          
-          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV          
-          echo "::set-output name=IMAGE_TAG::$IMAGE_TAG"
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+        # echo "::set-output name=IMAGE_TAG::$IMAGE_TAG"
+
       - name: Cache Trivy DB
         uses: actions/cache@v3
         with:
           path: ~/.cache/trivy
           key: trivy-db-${{ runner.os }}-${{ hashFiles('Dockerfile') }}
+
       - name: Install Trivy
         run: |
           wget https://github.com/aquasecurity/trivy/releases/download/v0.56.2/trivy_0.56.2_Linux-64bit.deb          
           sudo dpkg -i trivy_0.56.2_Linux-64bit.deb
+
       - name: Run Trivy Scan
         env:
           ECR_REGISTRY: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
           IMAGE_TAG: ${{ env.IMAGE_TAG }}
         run: |
           trivy image --format json -o trivy-report.json --cache-dir ~/.cache/trivy $ECR_REGISTRY:$IMAGE_TAG
+
       - name: Upload Trivy Report
         uses: actions/upload-artifact@v4
         with:
           name: trivy-report
           path: trivy-report.json
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::324037298804:role/deel-test-oidc-role
           aws-region: us-east-1
+
       - name: Log in to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
+
       - name: Push Docker Image to ECR
         env:
           ECR_REGISTRY: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
           IMAGE_TAG: ${{ env.IMAGE_TAG }}
         run: |
           docker push $ECR_REGISTRY:$IMAGE_TAG
+
       - name: Syncing static content to S3
         run: |
           aws s3 sync ./templates/static s3://deel-test-report/templates/static          
           aws s3 cp ./templates/ s3://deel-test-report/templates/ --recursive --exclude "*" --include "*.html"
+
       - name: Invalidating CloudFront cache
         run: |
           aws cloudfront create-invalidation --distribution-id E254F1VELFWB90 --paths "/templates/index.html"
@@ -149,32 +153,38 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.TOKEN }}
+
       - name: Updating new image tag in values.yaml file
-        env:
-          ECR_REGISTRY: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
-          IMAGE_TAG: ${{ needs.build-scan-publish.outputs.IMAGE_TAG }}
         run: |
           echo "Updating values.yaml with IMAGE_TAG=$IMAGE_TAG"
           sed -i 's|tag:.*$|tag: '"$IMAGE_TAG"'|' deel-app/values.yaml
           sed -i 's|repository:.*$|repository: '"$ECR_REGISTRY"'|' deel-app/values.yaml
+
       - name: Commit and Push Changes
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
+
       - name: Stage Changes
         run: git add deel-app/values.yaml
+
       - name: Commit Changes
         run: |
           git diff-index --quiet HEAD || git commit -m "Update image repository and tag to $ECR_REGISTRY:$IMAGE_TAG"
+
       - name: Push Changes
         id: push-changes
         run: git push origin HEAD:main
+
       - name: Retry Commit changes
         id: retry-push-changes
         if: ${{ steps.push-changes.outcome == 'failure' }}
         run: |
           git pull origin main --rebase && git push origin main
+
       - name: Notify on failure
         id: slack
         uses: rtCamp/action-slack-notify@v2
