@@ -91,8 +91,8 @@ jobs:
 
       - name: Build and Tag Docker Image
         id: build_image
-        # env:
-        #  ECR_REGISTRY: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
+        env:
+          ECR_REGISTRY: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
         run: |
           IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-7)          
           docker build -t $ECR_REGISTRY:$IMAGE_TAG .          
