@@ -75,7 +75,7 @@ jobs:
 
       - name: Upload HTML and Coverage report to S3
         run: |
-          aws s3 cp ./reports/* s3://deel-test-1/reports
+          aws s3 cp ./reports s3://deel-test-1/reports --recursive
 
   build-scan-publish:
     needs: build-and-test
