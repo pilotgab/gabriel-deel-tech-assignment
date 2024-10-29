@@ -97,7 +97,7 @@ jobs:
           IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-7)          
           docker build -t $ECR_REGISTRY:$IMAGE_TAG .          
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
-        # echo "::set-output name=IMAGE_TAG::$IMAGE_TAG"
+          echo "::set-output name=IMAGE_TAG::$IMAGE_TAG"
 
       - name: Cache Trivy DB
         uses: actions/cache@v3
