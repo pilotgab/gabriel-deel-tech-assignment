@@ -4,8 +4,8 @@
 replicaCount: 3
 namespace: deel-app
 image:
-  repository: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
-  tag: 3b9c630
+  repository: 
+  tag: 
   pullPolicy: Always
 service:
   type: ClusterIP
