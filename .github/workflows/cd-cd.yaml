@@ -135,10 +135,10 @@ jobs:
           name: trivy-report
           path: ./trivy-report.json
 
-      - name: Configure AWS Credentials for ECR Push
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
-          role-to-assume: arn :aws :iam::324037298804 :role/deel-test-oidc-role
+          role-to-assume: arn:aws:iam::324037298804:role/deel-test-oidc-role
           aws-region: us-east-1
 
       - name: Log in to Amazon ECR
