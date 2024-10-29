@@ -112,13 +112,16 @@ jobs:
           wget https://github.com/aquasecurity/trivy/releases/download/v0.56.2/trivy_0.56.2_Linux-64bit.deb          
           sudo dpkg -i trivy_0.56.2_Linux-64bit.deb
 
-      - name: Run Trivy Scan
-        env:
-          ECR_REGISTRY: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
-          IMAGE_TAG: ${{ steps.build_image.outputs.IMAGE_TAG }}
-        run: |
-          export TRIVY_DB_REPO="ghcr.io/aquasecurity/trivy-db"
-          trivy image --format json -o ./trivy-report.json --cache-dir ~/.cache/trivy $ECR_REGISTRY:$IMAGE_TAG
+          - name: Run Trivy Scan
+          env:
+            ECR_REGISTRY: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
+            IMAGE_TAG: ${{ steps.build_image.outputs.IMAGE_TAG }}
+            GITHUB_TOKEN: ${{ secrets.TOKEN }}  # Use the GitHub token for authentication
+          run: |
+            export TRIVY_DB_REPO="ghcr.io/aquasecurity/trivy-db"
+            export TRIVY_USER="${{ github.actor}}"
+            export TRIVY_TOKEN="${{ secrets.TOKEN }}"
+            trivy image --format json -o ./trivy-report.json --cache-dir ~/.cache/trivy $ECR_REGISTRY:$IMAGE_TAG
 
       - name: Upload Trivy Report
         uses: actions/upload-artifact@v4
