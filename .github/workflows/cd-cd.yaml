@@ -88,7 +88,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       IMAGE_TAG: ${{ steps.build_image.outputs.IMAGE_TAG }}
-      
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -130,40 +130,40 @@ jobs:
           trivy image --format json -o ./trivy-report.json --cache-dir ~/.cache/trivy $ECR_REGISTRY:$IMAGE_TAG
 
       - name: Upload Trivy Report
-        uses: actions/upload-artifact@v4 
+        uses: actions/upload-artifact@v4
         with:
-          name: trivy-report 
-          path: ./trivy-report.json 
+          name: trivy-report
+          path: ./trivy-report.json
 
-      - name: Configure AWS Credentials for ECR Push 
-        uses: aws-actions/configure-aws-credentials@v4 
+      - name: Configure AWS Credentials for ECR Push
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume : arn :aws :iam::324037298804 :role/deel-test-oidc-role 
-          aws-region : us-east-1 
+          role-to-assume: arn :aws :iam::324037298804 :role/deel-test-oidc-role
+          aws-region: us-east-1
 
-      - name : Log in to Amazon ECR 
-        uses : aws-actions/amazon-ecr-login@v2 
+      - name: Log in to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
 
-      - name : Push Docker Image to ECR 
-        env :
-          ECR_REGISTRY : 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry 
-          IMAGE_TAG : ${{ steps.build_image.outputs.IMAGE_TAG }} 
-        run : | 
-          docker push $ECR_REGISTRY:$IMAGE_TAG 
+      - name: Push Docker Image to ECR
+        env:
+          ECR_REGISTRY: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
+          IMAGE_TAG: ${{ steps.build_image.outputs.IMAGE_TAG }}
+        run: |
+          docker push $ECR_REGISTRY:$IMAGE_TAG
 
-      - name : Sync static content to S3 
-        run : | 
+      - name: Sync static content to S3
+        run: |
           aws s3 sync ./templates/static s3://deel-test-report/templates/static          
           aws s3 cp ./templates/ s3://deel-test-report/templates/ --recursive --exclude "*" --include "*.html"
 
-      - name : Invalidate CloudFront cache 
-        run : | 
+      - name: Invalidate CloudFront cache
+        run: |
           aws cloudfront create-invalidation --distribution-id E254F1VELFWB90 --paths "/templates/index.html"
 
   update-helm:
     needs: dockerise-scan-publish
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -177,22 +177,22 @@ jobs:
           sed -i 's|tag:. *$|tag:'"$IMAGE_TAG"'|' deel-app/values.yaml  # Update tag in values.yaml file.
           sed -i 's|repository:. *$|repository:'"$ECR_REGISTRY"'|' deel-app/values.yaml  # Update repository in values.yaml file.
 
-      - name : Commit and Push Changes 
-        run : | 
-           git config --global user.name "github-actions" 
-           git config --global user.email "github-actions@github.com" 
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions" 
+          git config --global user.email "github-actions@github.com"
 
-      - name : Stage Changes 
-       run : git add deel-app/values.yaml 
+      - name: Stage Changes
+        run: git add deel-app/values.yaml
 
-      - name : Commit Changes 
-       run : | 
-         git diff-index --quiet HEAD || git commit -m "Update image repository and tag to $ECR_REGISTRY:$IMAGE_TAG" 
-     
-         - name: Push Changes
-         id: push-changes
-         run: git push origin HEAD:main
- 
+      - name: Commit Changes
+        run: |
+          git diff-index --quiet HEAD || git commit -m "Update image repository and tag to $ECR_REGISTRY:$IMAGE_TAG"
+
+      - name: Push Changes
+        id: push-changes
+        run: git push origin HEAD:main
+
       - name: Retry Commit changes
         id: retry-push-changes
         if: ${{ steps.push-changes.outcome == 'failure' }}
@@ -208,4 +208,3 @@ jobs:
           channel: C06S8B0H9DG
           color: danger
           message: "GitHub workflow failed for commit ${{ github.event.head_commit.message }} with status ${{ github.workflow.status }}"
- 
