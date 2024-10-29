@@ -57,10 +57,16 @@ jobs:
         run: |
           pip install dist/*.whl
 
-      - name: Run tests with pytest
+      - name: Run unit tests with pytest
         run: |
           pytest unit_test.py --maxfail=1 --disable-warnings --html=reports/unit-report.html
+
+      - name: Run integration tests with pytest
+        run: |
           pytest int_test.py --maxfail=1 --disable-warnings --html=reports/int-report.html
+
+      - name: Run smoke tests with pytest
+        run: |
           pytest smoke_test.py --maxfail=1 --disable-warnings --html=reports/smoke-report.html
 
       - name: Check Coverage
