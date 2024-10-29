@@ -77,7 +77,7 @@ jobs:
         run: |
           aws s3 cp ./reports s3://deel-test-1/reports --recursive
 
-  build-scan-publish:
+  dockerise-scan-publish:
     needs: build-and-test
     runs-on: ubuntu-latest
     outputs:
@@ -94,8 +94,8 @@ jobs:
         env:
           ECR_REGISTRY: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
         run: |
-          IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-7)          
-          docker build -t $ECR_REGISTRY:$IMAGE_TAG .          
+          IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-7)
+          docker build -t $ECR_REGISTRY:$IMAGE_TAG .
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
           echo "::set-output name=IMAGE_TAG::$IMAGE_TAG"
 
@@ -115,7 +115,7 @@ jobs:
       - name: Run Trivy Scan
         env:
           ECR_REGISTRY: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
-          IMAGE_TAG: ${{ env.IMAGE_TAG }}
+          IMAGE_TAG: ${{ steps.build_image.outputs.IMAGE_TAG }}
         run: |
           export TRIVY_DB_REPO="ghcr.io/aquasecurity/trivy-db"
           trivy image --format json -o trivy-report.json --cache-dir ~/.cache/trivy $ECR_REGISTRY:$IMAGE_TAG
@@ -138,7 +138,7 @@ jobs:
       - name: Push Docker Image to ECR
         env:
           ECR_REGISTRY: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
-          IMAGE_TAG: ${{ env.IMAGE_TAG }}
+          IMAGE_TAG: ${{ steps.build_image.outputs.IMAGE_TAG }}
         run: |
           docker push $ECR_REGISTRY:$IMAGE_TAG
 
@@ -152,18 +152,16 @@ jobs:
           aws cloudfront create-invalidation --distribution-id E254F1VELFWB90 --paths "/templates/index.html"
 
   update-helm:
-    needs: build-scan-publish
+    needs: dockerise-scan-publish
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.TOKEN }}
 
       - name: Updating new image tag in values.yaml file
         env:
           ECR_REGISTRY: 324037298804.dkr.ecr.us-east-1.amazonaws.com/deel-test-registry
-          IMAGE_TAG: ${{ env.IMAGE_TAG }}
+          IMAGE_TAG: ${{ needs.dockerise-scan-publish.outputs.IMAGE_TAG }}
         run: |
           echo "Updating values.yaml with IMAGE_TAG=$IMAGE_TAG"
           sed -i 's|tag:.*$|tag: '"$IMAGE_TAG"'|' deel-app/values.yaml
