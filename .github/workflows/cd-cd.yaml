@@ -80,8 +80,8 @@ jobs:
   build-scan-publish:
     needs: build-and-test
     runs-on: ubuntu-latest
-    #outputs:
-    #  IMAGE_TAG: ${{ steps.build_image.outputs.IMAGE_TAG }}
+    outputs:
+      IMAGE_TAG: ${{ steps.build_image.outputs.IMAGE_TAG }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
