@@ -118,13 +118,13 @@ jobs:
           IMAGE_TAG: ${{ steps.build_image.outputs.IMAGE_TAG }}
         run: |
           export TRIVY_DB_REPO="ghcr.io/aquasecurity/trivy-db"
-          trivy image --format json -o trivy-report.json --cache-dir ~/.cache/trivy $ECR_REGISTRY:$IMAGE_TAG
+          trivy image --format json -o ./trivy-report.json --cache-dir ~/.cache/trivy $ECR_REGISTRY:$IMAGE_TAG
 
       - name: Upload Trivy Report
         uses: actions/upload-artifact@v4
         with:
           name: trivy-report
-          path: trivy-report.json
+          path: ./trivy-report.json
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
