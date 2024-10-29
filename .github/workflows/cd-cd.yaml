@@ -104,6 +104,8 @@ jobs:
         with:
           path: ~/.cache/trivy
           key: trivy-db-${{ runner.os }}-${{ hashFiles('Dockerfile') }}
+          restore-keys: |
+            trivy-db-${{ runner.os }}
 
       - name: Install Trivy
         run: |
